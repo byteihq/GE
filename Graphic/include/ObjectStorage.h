@@ -10,7 +10,7 @@
 class ObjectStorage {
 private:
     std::vector<std::unique_ptr<Object>> Storage;
-
+    std::vector<size_t> EmptyCells;
 private:
     ObjectStorage() = default;
 
@@ -19,12 +19,15 @@ public:
 
     ObjectStorage &operator=(const ObjectStorage &) = delete;
 
-    int
-    CreateNewObject(uint16_t Count, CoordinateType XMin, CoordinateType XMax, CoordinateType YMin, CoordinateType YMax);
+    size_t CreateNewObject(uint16_t Count, CoordinateType XMin, CoordinateType XMax, CoordinateType YMin, CoordinateType YMax);
 
-    int MoveObj(int Handle, CoordinateType XShift, CoordinateType YShift);
+    int MoveObj(size_t Handle, CoordinateType XShift, CoordinateType YShift);
 
-    std::pair<bool, Object *const> GetObject(int Handle);
+    void MoveCam(CoordinateType XShift, CoordinateType YShift);
+
+    int DeleteObj(size_t Handle);
+
+    std::pair<int, Object *const> GetObject(size_t Handle);
 
     static ObjectStorage *GetInstance();
 };

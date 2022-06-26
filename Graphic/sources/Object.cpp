@@ -31,6 +31,16 @@ Object::Object(uint16_t Count, CoordinateType XMin, CoordinateType XMax, Coordin
     CalculateDrawable();
 }
 
+std::tuple<float, float, CoordinateType, CoordinateType>
+Object::CalculateLine(CoordinateType X1, CoordinateType Y1, CoordinateType X2, CoordinateType Y2) {
+    float size = std::sqrt(std::pow(X1 - X2, 2) + std::pow(Y1 - Y2, 2));
+    float angle = std::asin((std::abs(Y1 - Y2)) / size) * 180 / M_PI;
+    if ((X1 <= X2 && Y1 <= Y2) || (X1 >= X2 && Y1 >= Y2)) {
+        return {size, angle, std::min(X1, X2), std::min(Y1, Y2)};
+    }
+    return {size, 180 - angle, std::max(X1, X2), std::min(Y1, Y2)};
+}
+
 void Object::CalculateDrawable() {
     ObjDrawable.clear();
     for (const auto &Coordinate: ObjCoordinates) {
@@ -43,28 +53,12 @@ void Object::CalculateDrawable() {
     for (size_t i = 0; i < ObjRelations.size(); ++i) {
         for (size_t j = 0; j < i; ++j) {
             if (ObjRelations[i][j]) {
-                double distance = std::sqrt(
-                        std::pow(ObjCoordinates[i].X - ObjCoordinates[j].X, 2) +
-                        std::pow(ObjCoordinates[i].Y - ObjCoordinates[j].Y, 2)
-                );
-                ObjDrawable.emplace_back(new sf::RectangleShape(sf::Vector2f(distance, LINE_SIZE)));
-                double sin_angle =
-                        static_cast<double>(std::abs(ObjCoordinates[i].Y - ObjCoordinates[j].Y)) / distance;
-                double angle = std::asin(sin_angle) * 180 / M_PI;
-                if ((ObjCoordinates[i].X <= ObjCoordinates[j].X &&
-                     ObjCoordinates[i].Y <= ObjCoordinates[j].Y) ||
-                    (ObjCoordinates[i].X >= ObjCoordinates[j].X &&
-                     ObjCoordinates[i].Y >= ObjCoordinates[j].Y)) {
-                    ObjDrawable.back()->setPosition(std::min(ObjCoordinates[i].X, ObjCoordinates[j].X),
-                                                    std::min(ObjCoordinates[i].Y, ObjCoordinates[j].Y));
-                    ObjDrawable.back()->rotate(angle);
-                } else {
-                    ObjDrawable.back()->setPosition(std::max(ObjCoordinates[i].X, ObjCoordinates[j].X),
-                                                    std::min(ObjCoordinates[i].Y, ObjCoordinates[j].Y));
-                    ObjDrawable.back()->rotate(180 - angle);
-                }
-                ObjCoordinates.emplace_back(static_cast<CoordinateType>(ObjDrawable.back()->getPosition().x),
-                                            static_cast<CoordinateType>(ObjDrawable.back()->getPosition().y));
+                auto[size, angle, X, Y] = CalculateLine(ObjCoordinates[i].X, ObjCoordinates[i].Y, ObjCoordinates[j].X,
+                                                        ObjCoordinates[j].Y);
+                ObjDrawable.emplace_back(new sf::RectangleShape(sf::Vector2f(size, LINE_SIZE)));
+                ObjDrawable.back()->rotate(angle);
+                ObjDrawable.back()->setPosition(X, Y);
+                ObjCoordinates.emplace_back(X, Y);
             }
         }
     }
@@ -74,11 +68,17 @@ void Object::Move(CoordinateType XShift, CoordinateType YShift) {
     for (size_t i = 0; i < ObjCoordinates.size(); ++i) {
 #ifdef _FLOAT_COORDINATES
         ObjCoordinates[i].X = std::fmod(ObjCoordinates[i].X + XShift, WINDOW_WIDTH);
-        ObjCoordinates[i].Y = std::fmod(ObjCoordinates[i].X + YShift, WINDOW_HEIGHT);
+        ObjCoordinates[i].Y = std::fmod(ObjCoordinates[i].Y + YShift, WINDOW_HEIGHT);
 #else
         ObjCoordinates[i].X = (ObjCoordinates[i].X + XShift) % WINDOW_WIDTH;
         ObjCoordinates[i].Y = (ObjCoordinates[i].Y + YShift) % WINDOW_HEIGHT;
 #endif
+        if (ObjCoordinates[i].X < 0) {
+            ObjCoordinates[i].X = WINDOW_WIDTH + ObjCoordinates[i].X;
+        }
+        if (ObjCoordinates[i].Y < 0) {
+            ObjCoordinates[i].Y = WINDOW_HEIGHT + ObjCoordinates[i].Y;
+        }
         ObjDrawable[i]->setPosition(ObjCoordinates[i].X, ObjCoordinates[i].Y);
     }
 }

@@ -12,7 +12,7 @@ class WindowHandler {
 private:
     sf::RenderWindow Window;
     sf::Event Event;
-    std::vector<int> Handles;
+    std::vector<size_t> Handles;
 
 private:
     void Close();
@@ -26,7 +26,7 @@ public:
 
     ~WindowHandler();
 
-    void Draw(int ObjHandle);
+    void Draw(size_t ObjHandle);
 
     void Refresh();
 

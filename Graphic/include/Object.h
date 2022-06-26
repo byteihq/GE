@@ -7,14 +7,36 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <cstdint>
+#include <tuple>
 
 class ObjectStorage;
 
 struct Coordinates {
-    CoordinateType X;
-    CoordinateType Y;
+    CoordinateType X = 0;
+    CoordinateType Y = 0;
+
+    enum class Quarter {
+        LU, // Left Upper
+        RU, // Right Upper
+        LB, // Left Bottom
+        RB // Right Bottom
+    };
 
     explicit Coordinates(CoordinateType NX, CoordinateType NY) : X(NX), Y(NY) {}
+
+    static Quarter GetQuarter(CoordinateType NX, CoordinateType NY) {
+        if (NX < WINDOW_WIDTH / 2) {
+            if (NY < WINDOW_HEIGHT / 2) {
+                return Quarter::LU;
+            }
+            return Quarter::LB;
+        }
+        // NX >= WINDOW_WIDTH / 2
+        if (NY < WINDOW_HEIGHT / 2) {
+            return Quarter::RU;
+        }
+        return Quarter::RB;
+    }
 };
 
 class Object {
@@ -34,10 +56,11 @@ private:
 
     void CalculateDrawable();
 
+    std::tuple<float, float, CoordinateType, CoordinateType> CalculateLine(CoordinateType X1, CoordinateType Y1, CoordinateType X2, CoordinateType Y2); // size, angle, X, Y
+
     void Move(CoordinateType XShift, CoordinateType YShift);
 
 public:
-
     const DrawableStorage &GetDrawable() const;
 };
 

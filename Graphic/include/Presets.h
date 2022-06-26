@@ -9,12 +9,12 @@
 
 #ifdef _FLOAT_COORDINATES
 using CoordinateType = float;
-#define WINDOW_WIDTH 600.f
-#define WINDOW_HEIGHT 400.f
+#define WINDOW_WIDTH 1024.f
+#define WINDOW_HEIGHT 800.f
 #else
 using CoordinateType = int;
-#define WINDOW_WIDTH 600
-#define WINDOW_HEIGHT 400
+#define WINDOW_WIDTH 1024
+#define WINDOW_HEIGHT 800
 #endif
 
 #endif //GRAPHICENGINE_PRESETS_H

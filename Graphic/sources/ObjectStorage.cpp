@@ -7,13 +7,19 @@ ObjectStorage *ObjectStorage::GetInstance() {
     return &objectStorage;
 }
 
-int ObjectStorage::CreateNewObject(uint16_t Count, CoordinateType XMin, CoordinateType XMax, CoordinateType YMin,
+size_t ObjectStorage::CreateNewObject(uint16_t Count, CoordinateType XMin, CoordinateType XMax, CoordinateType YMin,
                                    CoordinateType YMax) {
+    if (!EmptyCells.empty()) {
+        size_t handle = EmptyCells.back();
+        Storage[handle].reset(new Object(Count, XMin, XMax, YMin, YMax));
+        EmptyCells.pop_back();
+        return handle;
+    }
     Storage.emplace_back(new Object(Count, XMin, XMax, YMin, YMax));
     return Storage.size() - 1;
 }
 
-int ObjectStorage::MoveObj(int Handle, CoordinateType XShift, CoordinateType YShift) {
+int ObjectStorage::MoveObj(size_t Handle, CoordinateType XShift, CoordinateType YShift) {
     if (Storage.size() <= Handle || !Storage[Handle]) {
         return -1; // wrong Handle
     }
@@ -21,9 +27,26 @@ int ObjectStorage::MoveObj(int Handle, CoordinateType XShift, CoordinateType YSh
     return 0;
 }
 
-std::pair<bool, Object *const> ObjectStorage::GetObject(int Handle) {
-    if (Storage.size() <= Handle || !Storage[Handle]) {
-        return {false, nullptr}; // wrong Handle
+void ObjectStorage::MoveCam(CoordinateType XShift, CoordinateType YShift) {
+    for (const auto &Obj: Storage) {
+        if (Obj) {
+            Obj->Move(-1 * XShift, -1 * YShift);
+        }
     }
-    return {true, Storage[Handle].get()};
+}
+
+int ObjectStorage::DeleteObj(size_t Handle) {
+    if (Storage.size() <= Handle || !Storage[Handle]) {
+        return -1; // wrong Handle
+    }
+    Storage[Handle].reset();
+    EmptyCells.push_back(Handle);
+    return 0;
+}
+
+std::pair<int, Object *const> ObjectStorage::GetObject(size_t Handle) {
+    if (Storage.size() <= Handle || !Storage[Handle]) {
+        return {0, nullptr}; // wrong Handle
+    }
+    return {1, Storage[Handle].get()};
 }

@@ -10,10 +10,6 @@ WindowHandler::WindowHandler(uint16_t Width, uint16_t Height, uint8_t FrameLimit
 }
 
 void WindowHandler::Run() {
-    Handles.push_back(ObjectStorage::GetInstance()->CreateNewObject(4, 0.1 * WINDOW_WIDTH, 0.9 * WINDOW_WIDTH,
-                                                                    0.1 * WINDOW_HEIGHT, 0.9 * WINDOW_HEIGHT));
-    Handles.push_back(ObjectStorage::GetInstance()->CreateNewObject(4, 0.1 * WINDOW_WIDTH, 0.9 * WINDOW_WIDTH,
-                                                                    0.1 * WINDOW_HEIGHT, 0.9 * WINDOW_HEIGHT));
     while (Window.isOpen()) {
         while (Window.pollEvent(Event)) {
             if (Event.type == sf::Event::Closed) {
@@ -22,10 +18,27 @@ void WindowHandler::Run() {
             if (Event.type == sf::Event::KeyPressed) {
                 if (Event.key.code == sf::Keyboard::Escape) {
                     Close();
+                } else if (Event.key.code == sf::Keyboard::N) {
+                    Handles.push_back(
+                            ObjectStorage::GetInstance()->CreateNewObject(4, 0.1f * WINDOW_WIDTH, 0.9f * WINDOW_WIDTH,
+                                                                          0.1f * WINDOW_HEIGHT, 0.9f * WINDOW_HEIGHT));
+                } else if (Event.key.code == sf::Keyboard::D) {
+                    if (Handles.empty()) {
+                        continue;
+                    }
+                    ObjectStorage::GetInstance()->DeleteObj(Handles.back());
+                    Handles.pop_back();
+                } else if (Event.key.code == sf::Keyboard::Up) {
+                    ObjectStorage::GetInstance()->MoveCam(0, -1);
+                } else if (Event.key.code == sf::Keyboard::Down) {
+                    ObjectStorage::GetInstance()->MoveCam(0, 1);
+                } else if (Event.key.code == sf::Keyboard::Left) {
+                    ObjectStorage::GetInstance()->MoveCam(-1, 0);
+                } else if (Event.key.code == sf::Keyboard::Right) {
+                    ObjectStorage::GetInstance()->MoveCam(1, 0);
                 }
             }
         }
-        ObjectStorage::GetInstance()->MoveObj(Handles.back(), 1, 3);
         Refresh();
     }
 }
@@ -38,7 +51,7 @@ void WindowHandler::Refresh() {
     Window.display();
 }
 
-void WindowHandler::Draw(int ObjHandle) {
+void WindowHandler::Draw(size_t ObjHandle) {
     if (auto res = ObjectStorage::GetInstance()->GetObject(ObjHandle); res.first) {
         for (const auto &shape: res.second->GetDrawable()) {
             Window.draw(*shape);

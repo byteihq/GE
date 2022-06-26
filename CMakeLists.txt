@@ -12,7 +12,7 @@ HunterGate(
 project(GraphicEngine)
 
 set(CMAKE_CXX_STANDARD 17)
-#add_definitions(-D_FLOAT_COORDINATES)
+add_definitions(-D_FLOAT_COORDINATES)
 
 add_library(Graphic STATIC
         ${CMAKE_CURRENT_SOURCE_DIR}/Graphic/sources/WindowHandler.cpp
