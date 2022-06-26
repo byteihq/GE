@@ -9,8 +9,8 @@
 
 #ifdef _FLOAT_COORDINATES
 using CoordinateType = float;
-#define WINDOW_WIDTH 1024.f
-#define WINDOW_HEIGHT 800.f
+#define WINDOW_WIDTH 800.f
+#define WINDOW_HEIGHT 600.f
 #else
 using CoordinateType = int;
 #define WINDOW_WIDTH 1024

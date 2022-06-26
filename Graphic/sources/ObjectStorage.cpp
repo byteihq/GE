@@ -8,7 +8,7 @@ ObjectStorage *ObjectStorage::GetInstance() {
 }
 
 size_t ObjectStorage::CreateNewObject(uint16_t Count, CoordinateType XMin, CoordinateType XMax, CoordinateType YMin,
-                                   CoordinateType YMax) {
+                                      CoordinateType YMax) {
     if (!EmptyCells.empty()) {
         size_t handle = EmptyCells.back();
         Storage[handle].reset(new Object(Count, XMin, XMax, YMin, YMax));
@@ -31,6 +31,14 @@ void ObjectStorage::MoveCam(CoordinateType XShift, CoordinateType YShift) {
     for (const auto &Obj: Storage) {
         if (Obj) {
             Obj->Move(-1 * XShift, -1 * YShift);
+        }
+    }
+}
+
+void ObjectStorage::RotateCam(float Angle) {
+    for (const auto &Obj: Storage) {
+        if (Obj) {
+            Obj->RotateRPoint(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, -1 * Angle);
         }
     }
 }

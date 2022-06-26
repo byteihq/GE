@@ -25,6 +25,8 @@ public:
 
     void MoveCam(CoordinateType XShift, CoordinateType YShift);
 
+    void RotateCam(float Angle);
+
     int DeleteObj(size_t Handle);
 
     std::pair<int, Object *const> GetObject(size_t Handle);

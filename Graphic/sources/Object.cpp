@@ -59,6 +59,9 @@ void Object::CalculateDrawable() {
                 ObjDrawable.back()->rotate(angle);
                 ObjDrawable.back()->setPosition(X, Y);
                 ObjCoordinates.emplace_back(X, Y);
+                if (LineIndex == 0) {
+                    LineIndex = ObjCoordinates.size() - 1;
+                }
             }
         }
     }
@@ -81,6 +84,41 @@ void Object::Move(CoordinateType XShift, CoordinateType YShift) {
         }
         ObjDrawable[i]->setPosition(ObjCoordinates[i].X, ObjCoordinates[i].Y);
     }
+}
+
+void Object::RotateRPoint(CoordinateType X, CoordinateType Y, float Angle) {
+    float rAngle = 0;
+    float r = 0;
+    CoordinateType xDist = 0;
+    CoordinateType yDist = 0;
+    for (size_t i = 0; i < LineIndex; ++i) {
+        xDist = std::abs(ObjCoordinates[i].X - X);
+        yDist = std::abs(ObjCoordinates[i].Y - Y);
+        auto quarter = Coordinates::GetQuarter(ObjCoordinates[i].X, ObjCoordinates[i].Y);
+        if (xDist == 0) {
+            if (quarter == Coordinates::Quarter::RU) {
+                rAngle = M_PI_2;
+            } else {
+                rAngle = 1.5 * M_PI;
+            }
+        } else {
+            rAngle = std::atan(yDist / static_cast<float>(xDist));
+            if (quarter == Coordinates::Quarter::LU) {
+                rAngle = M_PI - rAngle;
+            } else if (quarter == Coordinates::Quarter::LB) {
+                rAngle += M_PI;
+            } else if (quarter == Coordinates::Quarter::RB) {
+                rAngle = 2 * M_PI - rAngle;
+            }
+        }
+        rAngle += Angle * M_PI / 180;
+        r = std::sqrt(std::pow(xDist, 2) + std::pow(yDist, 2));
+        ObjCoordinates[i].X = r * std::cos(rAngle) + X;
+        ObjCoordinates[i].Y = -1 * r * std::sin(rAngle) + Y;
+    }
+    ObjCoordinates.erase(ObjCoordinates.begin() + LineIndex, ObjCoordinates.end());
+    LineIndex = 0;
+    CalculateDrawable();
 }
 
 const Object::DrawableStorage &Object::GetDrawable() const {

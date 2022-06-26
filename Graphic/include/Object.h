@@ -50,6 +50,7 @@ private:
     CoordinatesStorage ObjCoordinates;
     RelationsStorage ObjRelations;
     DrawableStorage ObjDrawable;
+    size_t LineIndex = 0;
 
 private:
     explicit Object(uint16_t Count, CoordinateType XMin, CoordinateType XMax, CoordinateType YMin, CoordinateType YMax);
@@ -59,6 +60,8 @@ private:
     std::tuple<float, float, CoordinateType, CoordinateType> CalculateLine(CoordinateType X1, CoordinateType Y1, CoordinateType X2, CoordinateType Y2); // size, angle, X, Y
 
     void Move(CoordinateType XShift, CoordinateType YShift);
+
+    void RotateRPoint(CoordinateType X, CoordinateType Y, float Angle);
 
 public:
     const DrawableStorage &GetDrawable() const;

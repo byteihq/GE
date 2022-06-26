@@ -36,6 +36,10 @@ void WindowHandler::Run() {
                     ObjectStorage::GetInstance()->MoveCam(-1, 0);
                 } else if (Event.key.code == sf::Keyboard::Right) {
                     ObjectStorage::GetInstance()->MoveCam(1, 0);
+                } else if (Event.key.code == sf::Keyboard::A) {
+                    ObjectStorage::GetInstance()->RotateCam(1);
+                } else if (Event.key.code == sf::Keyboard::S) {
+                    ObjectStorage::GetInstance()->RotateCam(-1);
                 }
             }
         }
